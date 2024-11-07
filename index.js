@@ -14,11 +14,6 @@ class minHeap{
         return this.size() === 0;
     }
 
-    push(element){
-        this.heap_array.push(element);
-        this.upHeapify();
-    }
-
     upHeapify(){
         let childindex = this.size() - 1;
         // parent index formula = (childindex - 1) / 2;
@@ -37,37 +32,32 @@ class minHeap{
         }
     }
 
+    push(element){
+        this.heap_array.push(element);
+        this.upHeapify();
+    }
+
     top(){
         return this.heap_array[0];
     }
 
-    pop(){
-        //swap first and last element remove last elem
-        if(this.empty() == false){
-            let lastindex = this.size() - 1;
-            elem_at_last = this.heap_array[lastindex];
-            this.heap_array[0] = elem_at_last;
-            this.heap_array.pop();
-            downHeapify();
-        }
-    }
 
     downHeapify(){
         let parentindex = 0;
-        let parent_element = this.heap_array[parentindex];
+        let parent_element = this.heap_array[0];
 
         while(parentindex < this.size()){
             let lci = (parentindex * 2) + 1; // lci = left child index
             let rci = (parentindex * 2) + 2; // rci = right child index
-            if(lci > this.size()-1 && rci > this.size()-1){
+            if(lci >= this.size() && rci >= this.size()){
                 break;
             }
-            else if(rci > this.size() - 1 ){
-                let rc_elem = this.heap_array[rci];
-                if(parent_element[0] < rc_elem[0]){
+            else if(rci >= this.size()){
+                let lc_elem = this.heap_array[lci];
+                if(parent_element[0] < lc_elem[0]){
                     break;
                 }else{
-                    this.heap_array[parentindex] = rc_elem;
+                    this.heap_array[parentindex] = lc_elem;
                     this.heap_array[lci] = parent_element;
                     parentindex = lci;
                 }
@@ -88,6 +78,17 @@ class minHeap{
                     }
                 }
             }
+        }
+    }
+
+    pop(){
+        //swap first and last element remove last elem
+        if(this.empty() == false){
+            let lastindex = this.size() - 1;
+            let elem_at_last = this.heap_array[lastindex];
+            this.heap_array[0] = elem_at_last;
+            this.heap_array.pop();
+            this.downHeapify();
         }
     }
 
@@ -213,7 +214,6 @@ class huffman{
     }
 
     decode(data){
-
         let k = 0;
 		let temp = "";
 		while (k < data.length && data[k] != '#') {
@@ -275,19 +275,18 @@ class huffman{
 		let encoded_data = temp;
 
 		this.index = 0;
-		var huffman_tree = this.make_tree(tree_string);
-
+		let huffman_tree = this.make_tree(tree_string);
 
         //generating binary string from encoded data
         let binary_string = "";
         for(let i=0;i<encoded_data.length;i++){
             let curr_num = encoded_data.charCodeAt(i);
             let curr_binary = "";
-            for(let j=7;i>=0;j--){
-                if((curr_num & (1<<j)) > 0){
-                    curr_binary + '1';
+            for(let j=7;j>=0;j--){
+                if(((curr_num >> j) & 1) > 0){
+                    curr_binary += '1';
                 }else{
-                    curr_binary + '0';
+                    curr_binary += '0';
                 }
             }
             binary_string += curr_binary;
@@ -315,4 +314,70 @@ class huffman{
 		return [decoded_data, output_message];
     }
 };
+
+let code = new huffman();
+
+const filedata = document.getElementById("filedata");
+const fileinput = document.getElementById("fileinput");
+const submitbtn = document.getElementById("submitbtn");
+const encodebtn = document.getElementById("encode");
+const decodebtn = document.getElementById("decode");
+
+let isSubmitted = false;
+
+submitbtn.addEventListener("click",()=>{
+    console.log(fileinput.files);
+    let uploadedfile = fileinput.files[0]
+    if(uploadedfile == undefined){
+        alert("No file uploaded. try again");
+        return;
+    }
+    //check whether the uploaded file is a text file 
+    let splitname = uploadedfile.name.split('.');
+    let extension = splitname[splitname.length - 1].toLowerCase();
+    if(extension != "txt"){
+        alert("file submitted must be a txt file");
+        return;
+    }
+    isSubmitted = true;
+    alert("submitted");
+});
+
+encodebtn.addEventListener("click",()=>{
+    if(isSubmitted === false){
+        alert("No file is submitted yet. Please submit the file first.");
+        return;
+    }
+    let uploadedfile = fileinput.files[0];
+    let fileReader = new FileReader();
+    fileReader.readAsText(uploadedfile);
+    fileReader.addEventListener("load",()=>{
+        let data = fileReader.result;
+        let [encodedString,output_message] = code.encode(data);
+        myDownloadFile(uploadedfile.name.split('.')[0] + "_compressed.txt", encodedString);
+    })
+
+})
+
+decodebtn.addEventListener("click",()=>{
+    if(isSubmitted === false){
+        alert("No file is submitted yet. Please submit the file first.");
+        return;
+    }
+    let uploadedfile = fileinput.files[0];
+    let fileReader = new FileReader();
+    fileReader.readAsText(uploadedfile);
+    fileReader.addEventListener("load",()=>{
+        let data = fileReader.result;
+        let [decodedString,output_message] = code.decode(data);
+        myDownloadFile(uploadedfile.name.split('.')[0] + "_decompressed.txt", decodedString);
+    })
+})
+
+function myDownloadFile(fileName, text) {
+	let a = document.createElement('a');
+	a.href = "data:application/octet-stream," + encodeURIComponent(text);
+	a.download = fileName;
+	a.click();
+}
 
