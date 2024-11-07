@@ -4,29 +4,30 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Document</title>
+    <link rel="stylesheet" href="index.css">
 </head>
 <body>
-    <div class="left-part">
+    <div class="leftpart">
         <div class="file_selection">
-            <form method="post" id="filedata">
-                <input type="file" name="file" id="fileinput" >
+            <form method="post" id="filedata" class="cards">
+                <input type="file" name="file" id="fileinput" class="fileinput">
                 <input type="button" id="submitbtn" class="button" value="Upload">
             </form>
         </div>
-        <div class="perform_operation">
+        <div class="perform_operation cards">
             <button id="encode" class="button">Compress</button>
             <button id="decode" class="button">Decompress</button>
         </div>
     </div>
     <div class="rightpart">
-        <div class="selectedfilecontent">
-            <p></p>
+        <div class="selectedfilecontent text-content">
+            <p>Input String Content</p>
         </div>
-        <div class="convertedfilecontent">
-            <p></p>
+        <div class="convertedfilecontent text-content">
+            <p>Output String Content</p>
         </div>
-        <div class="outputmessage">
-            <p></p>
+        <div class="outputmessage text-content">
+            <p>Output Message</p>
         </div>
     </div>
     <script src="index.js"></script>

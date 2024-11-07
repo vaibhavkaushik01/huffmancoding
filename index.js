@@ -322,12 +322,17 @@ const fileinput = document.getElementById("fileinput");
 const submitbtn = document.getElementById("submitbtn");
 const encodebtn = document.getElementById("encode");
 const decodebtn = document.getElementById("decode");
+const selectedfilecontent = document.querySelector(".selectedfilecontent");
+const convertedfilecontent = document.querySelector(".convertedfilecontent");
+const outputmessage = document.querySelector(".outputmessage");
 
 let isSubmitted = false;
+let data = "";
+let uploadedfile;
 
 submitbtn.addEventListener("click",()=>{
     console.log(fileinput.files);
-    let uploadedfile = fileinput.files[0]
+    uploadedfile = fileinput.files[0]
     if(uploadedfile == undefined){
         alert("No file uploaded. try again");
         return;
@@ -341,6 +346,15 @@ submitbtn.addEventListener("click",()=>{
     }
     isSubmitted = true;
     alert("submitted");
+    if(isSubmitted){
+        uploadedfile = fileinput.files[0];
+        let fileReader = new FileReader();
+        fileReader.readAsText(uploadedfile);
+        fileReader.addEventListener("load",()=>{
+            data = fileReader.result;
+            selectedfilecontent.textContent = data;
+        })
+    }
 });
 
 encodebtn.addEventListener("click",()=>{
@@ -348,14 +362,10 @@ encodebtn.addEventListener("click",()=>{
         alert("No file is submitted yet. Please submit the file first.");
         return;
     }
-    let uploadedfile = fileinput.files[0];
-    let fileReader = new FileReader();
-    fileReader.readAsText(uploadedfile);
-    fileReader.addEventListener("load",()=>{
-        let data = fileReader.result;
-        let [encodedString,output_message] = code.encode(data);
-        myDownloadFile(uploadedfile.name.split('.')[0] + "_compressed.txt", encodedString);
-    })
+    let [encodedString,output_message] = code.encode(data);
+    convertedfilecontent.textContent = encodedString;
+    outputmessage.textContent = output_message;
+    myDownloadFile(uploadedfile.name.split('.')[0] + "_compressed.txt", encodedString);
 
 })
 
@@ -364,14 +374,10 @@ decodebtn.addEventListener("click",()=>{
         alert("No file is submitted yet. Please submit the file first.");
         return;
     }
-    let uploadedfile = fileinput.files[0];
-    let fileReader = new FileReader();
-    fileReader.readAsText(uploadedfile);
-    fileReader.addEventListener("load",()=>{
-        let data = fileReader.result;
-        let [decodedString,output_message] = code.decode(data);
-        myDownloadFile(uploadedfile.name.split('.')[0] + "_decompressed.txt", decodedString);
-    })
+    let [decodedString,output_message] = code.decode(data);
+    convertedfilecontent.textContent = decodedString;
+    outputmessage.textContent = output_message;
+    myDownloadFile(uploadedfile.name.split('.')[0] + "_decompressed.txt", decodedString);
 })
 
 function myDownloadFile(fileName, text) {
